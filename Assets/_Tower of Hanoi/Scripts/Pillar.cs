@@ -30,4 +30,14 @@ public class Pillar : Selectable
         stack.Add(ring);
         ring.transform.parent = this.transform;
     }
+
+    public void ClearStack()
+    {
+        for (int i = 0; i < stack.Count; i++)
+        {
+            Ring ring = stack[i];
+            stack.Remove(ring);
+            Destroy(ring);
+        }
+    }
 }

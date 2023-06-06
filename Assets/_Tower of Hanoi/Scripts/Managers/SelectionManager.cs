@@ -64,24 +64,23 @@ public class SelectionManager : MonoBehaviour
         activeRing = null;
     }
 
-    private IEnumerator DelayDetectionToggle(float duration = 0)
+    private IEnumerator DelayDetectionToggle(bool toggle, float duration = 0)
     {
         yield return new WaitForSeconds(duration);
-        col.enabled = !col.enabled;
+        col.enabled = toggle;
     }
 
-    public void ToggleCollider()
+    public void DelayToggleCollider(bool toggle)
+    {
+        StartCoroutine(DelayDetectionToggle(toggle, delayDetectionDuration));
+    }
+
+    public void ToggleCollider(bool toggle)
     {
         activeRing = null;
         activePillar = null;
 
-        if(col.enabled)
-        {
-            StartCoroutine(DelayDetectionToggle());
-            return;
-        }
-
-        StartCoroutine(DelayDetectionToggle(delayDetectionDuration));
+        StartCoroutine(DelayDetectionToggle(toggle));
     }
 
     public void SelectPiece()

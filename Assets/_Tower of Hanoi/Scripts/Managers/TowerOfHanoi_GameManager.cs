@@ -29,6 +29,7 @@ public class TowerOfHanoi_GameManager : MonoBehaviour
 
     [Header("Rings")]
     [SerializeField] private GameObject ringPrefab;
+    //[SerializeField] private List<Ring> rings;
     [SerializeField] private int numOfRings = 3;
     [SerializeField] private int maxRings;
     [SerializeField] private int minRings;
@@ -64,6 +65,8 @@ public class TowerOfHanoi_GameManager : MonoBehaviour
     {
         if (start == false) return;
 
+        elapsedTime += Time.deltaTime;
+
         switch (currentGameMode)
         {
             case GameMode.NORMAL_MODE: NormalMode(); break;
@@ -75,7 +78,6 @@ public class TowerOfHanoi_GameManager : MonoBehaviour
     {
         if (CheckWinCondition(numOfRings))
         {
-            elapsedTime += Time.deltaTime;
             StartCoroutine(GameEnd());
             start = false;
         }
@@ -115,22 +117,26 @@ public class TowerOfHanoi_GameManager : MonoBehaviour
 
     private void Setup(int ringCount)
     {
-        elapsedTime = 0;
-
         foreach (Pillar pillar in pillars)
         {
             pillar.IsTarget = false;
             pillar.ResetMaterial();
 
-            if (pillar.stack.Count == 0) continue;
+            if (pillar.stack.Count > 0)
+                pillar.ClearStack();
 
-            for (int i = pillar.stack.Count - 1; i >= 0; i--)
-            {
-                Ring ring = pillar.stack[i];
+            //if (pillar.stack.Count == 0 || rings.Count == 0) continue;
 
-                pillar.stack.Remove(ring);
-                Destroy(ring.gameObject);
-            }
+            //if (pillar.stack.Count > 0)
+            //{
+            //    for (int i = 0; i < pillar.stack.Count; i++)
+            //    {
+            //        Ring ring = rings[i];
+            //        pillar.stack.Remove(rings[i]);
+            //        rings.Remove(rings[i]);
+            //        Destroy(ring);
+            //    }
+            //}
         }
 
         List<Pillar> pillarHolder = new List<Pillar>(pillars);
@@ -181,6 +187,7 @@ public class TowerOfHanoi_GameManager : MonoBehaviour
             Ring ring = obj.GetComponent<Ring>();
             ring.RingOrder = i;
             ring.AssignRandomColor();
+            //rings.Add(ring);
             pillar.PlaceRing(ring);
             prevRingSize -= radiusInterval;
 
@@ -192,7 +199,6 @@ public class TowerOfHanoi_GameManager : MonoBehaviour
     {
         AudioManager.Instance.PlayAudio(winAudio);
         yield return new WaitForSeconds(1.5f);
-
         OnGameEnd?.Invoke();
 
         initialPillar = null;
@@ -205,6 +211,7 @@ public class TowerOfHanoi_GameManager : MonoBehaviour
         score++;
 
         float normalizedDifficulty = endlessModeNumOfRings / maxRings;
+        Debug.Log(additionalTime * scalingValue.Evaluate(normalizedDifficulty));
         timer += (additionalTime * scalingValue.Evaluate(normalizedDifficulty));
 
         endlessModeNumOfRings += 1;
@@ -222,6 +229,7 @@ public class TowerOfHanoi_GameManager : MonoBehaviour
         yield return new WaitForSeconds(1.5f);
 
         OnEndlessGameEnd?.Invoke();
+
         initialPillar = null;
         targetPillar = null;
     }
@@ -236,12 +244,15 @@ public class TowerOfHanoi_GameManager : MonoBehaviour
     {
         score = 0;
         timer = maxTime;
+        elapsedTime = 0;
+        endlessModeNumOfRings = minRings;
         Setup(endlessModeNumOfRings);
         OnGameStart?.Invoke();
     }
 
     public void GameStart()
     {
+        elapsedTime = 0;
         Setup(numOfRings);
         OnGameStart?.Invoke();
     }
@@ -260,7 +271,6 @@ public class TowerOfHanoi_GameManager : MonoBehaviour
         numOfRings = Mathf.Clamp(numOfRings, minRings, maxRings);
         inputField.text = numOfRings.ToString();
     }
-
 
     public void SelectGameMode(int mode)
     {

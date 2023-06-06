@@ -26,7 +26,7 @@ public class UIHandler : MonoBehaviour
 
     public void UpdateScore()
     {
-        elapsedTimeTxt.ForEach(x => x.text = "Total Time: " + gameManager.GetElapsedTime());
+        elapsedTimeTxt.ForEach(x => x.text = "Total Time: " + gameManager.GetElapsedTime().ToString("F2"));
         endlessScoreTxt.text = "Total Score: " + gameManager.GetScore();
     }
 }
